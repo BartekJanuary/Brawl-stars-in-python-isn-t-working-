@@ -1,0 +1,2 @@
+supergierka.py
+pause

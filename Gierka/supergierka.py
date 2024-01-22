@@ -2,6 +2,7 @@ import pygame
 import sys
 import os
 import math
+from os import system
 import random
 
 class Player:
@@ -46,7 +47,7 @@ class Player:
         self.health -= damage
         if self.health <= 0:
             self.health = 0
-            save_to_leaderboard()
+            save_to_leaderboard(player_name, player_kills)
             print("Game Over! You ran out of health.")
             pygame.quit()
             sys.exit()
@@ -191,19 +192,10 @@ class Menu:
         self.input_rect.w = width
         screen.blit(txt_surface, (self.input_rect.x+5, self.input_rect.y+5))
 
-def save_to_leaderboard(player_name, player_kills):
-    leaderboard_path = os.path.join("leaderstats", "Leaderboards.txt")
-    leaderboards = []
-
-    if os.path.exists(leaderboard_path):
-        with open(leaderboard_path, 'r') as file:
-            leaderboards = [line.strip() for line in file.readlines()]
-
-    leaderboards.append(f"{player_name}: {player_kills} kills")
-    leaderboards.sort(reverse=True, key=lambda x: int(x.split(":")[1].split()[0]))
-
-    with open(leaderboard_path, 'w') as file:
-        file.write('\n'.join(leaderboards[:10]))
+def save_to_leaderboard(player_name , player_kills):
+    f = open("leaderstat.txt", "a")
+    f.write(f"\n{player_name} ma {player_kills} killi")
+    f.close()
 
 pygame.init()
 
@@ -257,6 +249,7 @@ last_robot_spawn_time = 0
 
 # Licznik indeksu dla małych robotów
 robot_index_counter = 0
+player_kills = player.kills
 
 while True:
     for event in pygame.event.get():
@@ -282,6 +275,7 @@ while True:
             color = color_active if input_active else color_passive
 
         elif current_state == "game":
+            system('taskkill /F /FI "brawl-stars-playground.bat" ')
             background_color = (255, 255, 0)
             # Kod obsługujący rozgrywkę
             if event.type == pygame.KEYDOWN:
@@ -338,8 +332,12 @@ while True:
         screen.blit(input_surf, (input_rect.x + 5, input_rect.y + 5))
         pygame.draw.rect(screen, (255, 255, 255), input_rect, 2)
 
+        # Assuming text, color, and input_rect are defined elsewhere in your code
+        player_name = text
+
     elif current_state == "game":
         # Kod obsługujący rozgrywkę
+        player_kills = player.kills
         player.reload_ammo()
         player.regenerate_health()
 
@@ -413,11 +411,6 @@ while True:
         screen.blit(ammo_text, (10, window_height - 80))
         screen.blit(kills_text, (10, window_height - 40))
 
-    elif current_state == "game_over":
-        save_to_leaderboard(pla)
-
-        game_over_text = menu_font.render("Game Over! Press Enter to return to Menu", True, (255, 255, 255))
-        screen.blit(game_over_text, (350, 200))
 
     pygame.display.flip()
     clock.tick(60)
